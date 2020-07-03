@@ -330,47 +330,6 @@ private:
                 return ret;
         }
 
-        static napi_value SetSlotProgram(napi_env env, napi_callback_info info)
-        {
-                napi_status status;
-
-                size_t argc = 4;
-                napi_value jsthis, argv[4];
-                status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
-                assert(status == napi_ok && argc == 4);
-
-                Cam *obj;
-                status = napi_unwrap(env, jsthis, (void**)&obj);
-                assert(status == napi_ok);
-
-                cam_aid_t aid;
-                status = napi_get_value_uint32(env, argv[0], &aid);
-                assert(status == napi_ok);
-
-                int32_t slot;
-                status = napi_get_value_int32(env, argv[1], &slot);
-                assert(status == napi_ok);
-
-                size_t name_sz;
-                char module [MAX_NAME_LENGTH];
-                char program[MAX_NAME_LENGTH];
-
-                status = napi_get_value_string_latin1(env, argv[2], nullptr, 0, &name_sz);
-                assert(status == napi_ok && name_sz < MAX_NAME_LENGTH);
-                status = napi_get_value_string_latin1(env, argv[2], module,  MAX_NAME_LENGTH, &name_sz);
-                assert(status == napi_ok);
-
-                status = napi_get_value_string_latin1(env, argv[3], nullptr, 0, &name_sz);
-                assert(status == napi_ok && name_sz < MAX_NAME_LENGTH);
-                status = napi_get_value_string_latin1(env, argv[3], program, MAX_NAME_LENGTH, &name_sz);
-                assert(status == napi_ok);
-
-                napi_value ret;
-                cam_error_t ec = cam_set_slot_program(obj->_cam, aid, slot, module, program);
-                status = napi_create_int32(env, ec, &ret);
-                return ret;
-        }
-
         static napi_value SetSlotComp4(napi_env env, napi_callback_info info)
         {
                 napi_status status;
@@ -418,6 +377,78 @@ private:
                 return nullptr;
         }
 
+        static napi_value SetSlotProgram(napi_env env, napi_callback_info info)
+        {
+                napi_status status;
+
+                size_t argc = 4;
+                napi_value jsthis, argv[4];
+                status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
+                assert(status == napi_ok && argc == 4);
+
+                Cam *obj;
+                status = napi_unwrap(env, jsthis, (void**)&obj);
+                assert(status == napi_ok);
+
+                cam_aid_t aid;
+                status = napi_get_value_uint32(env, argv[0], &aid);
+                assert(status == napi_ok);
+
+                int32_t slot;
+                status = napi_get_value_int32(env, argv[1], &slot);
+                assert(status == napi_ok);
+
+                size_t name_sz;
+                char module [MAX_NAME_LENGTH];
+                char program[MAX_NAME_LENGTH];
+
+                status = napi_get_value_string_latin1(env, argv[2], nullptr, 0, &name_sz);
+                assert(status == napi_ok && name_sz < MAX_NAME_LENGTH);
+                status = napi_get_value_string_latin1(env, argv[2], module,  MAX_NAME_LENGTH, &name_sz);
+                assert(status == napi_ok);
+
+                status = napi_get_value_string_latin1(env, argv[3], nullptr, 0, &name_sz);
+                assert(status == napi_ok && name_sz < MAX_NAME_LENGTH);
+                status = napi_get_value_string_latin1(env, argv[3], program, MAX_NAME_LENGTH, &name_sz);
+                assert(status == napi_ok);
+
+                napi_value ret;
+                cam_error_t ec = cam_set_slot_program(obj->_cam, aid, slot, module, program);
+                status = napi_create_int32(env, ec, &ret);
+                return ret;
+        }
+
+        static napi_value SetSlotDisplay(napi_env env, napi_callback_info info)
+        {
+                napi_status status;
+
+                size_t argc = 3;
+                napi_value jsthis, argv[3];
+                status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
+                assert(status == napi_ok && argc == 3);
+
+                Cam *obj;
+                status = napi_unwrap(env, jsthis, (void**)&obj);
+                assert(status == napi_ok);
+
+                cam_aid_t aid;
+                status = napi_get_value_uint32(env, argv[0], &aid);
+                assert(status == napi_ok);
+
+                int32_t slot;
+                status = napi_get_value_int32(env, argv[1], &slot);
+                assert(status == napi_ok);
+
+                size_t display_len, copied_len;
+                status = napi_get_value_string_latin1(env, argv[2], nullptr, 0, &display_len);
+                assert(status == napi_ok);
+                char *str = cam_set_slot_display(obj->_cam, aid, slot, nullptr, display_len);
+                status = napi_get_value_string_latin1(env, argv[2], str, display_len + 1, &copied_len);
+                assert(status == napi_ok && display_len == copied_len);
+
+                return nullptr;
+        }
+
         static napi_value GetSlotComp4(napi_env env, napi_callback_info info)
         {
                 napi_status status;
@@ -460,6 +491,34 @@ private:
                 assert(status == napi_ok);
                 status = napi_set_named_property(env, ret, "scale", c4v);
 
+                return ret;
+        }
+
+        static napi_value GetSlotDisplay(napi_env env, napi_callback_info info)
+        {
+                napi_status status;
+
+                size_t argc = 2;
+                napi_value jsthis, argv[2];
+                status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
+                assert(status == napi_ok && argc == 2);
+
+                Cam *obj;
+                status = napi_unwrap(env, jsthis, (void**)&obj);
+                assert(status == napi_ok);
+
+                cam_aid_t aid;
+                status = napi_get_value_uint32(env, argv[0], &aid);
+                assert(status == napi_ok);
+
+                int32_t slot;
+                status = napi_get_value_int32(env, argv[1], &slot);
+                assert(status == napi_ok);
+
+                int length;
+                napi_value ret;
+                const char *str = cam_get_slot_display(obj->_cam, aid, slot, &length);
+                status = napi_create_string_latin1(env, str, length, &ret);
                 return ret;
         }
 
@@ -532,7 +591,9 @@ public:
                         DECLARE_NAPI_METHOD("numSlots",       &NumSlots),
                         DECLARE_NAPI_METHOD("setSlotComp4",   &SetSlotComp4),
                         DECLARE_NAPI_METHOD("setSlotProgram", &SetSlotProgram),
+                        DECLARE_NAPI_METHOD("setSlotDisplay", &SetSlotDisplay),
                         DECLARE_NAPI_METHOD("getSlotComp4",   &GetSlotComp4),
+                        DECLARE_NAPI_METHOD("getSlotDisplay", &GetSlotDisplay),
                         DECLARE_NAPI_METHOD("call",           &Call),
                         DECLARE_NAPI_METHOD("runOnce",        &RunOnce)
                 };

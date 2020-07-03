@@ -7,6 +7,8 @@ var chunk_buf = fs.readFileSync("C:/Users/Admin/Documents/GitHub/cam/build/tools
 cam.addForeign("B-OPS", "SUB", aid => {
         console.log(cam.getSlotComp4(aid, 0))
         console.log(cam.getSlotComp4(aid, 1))
+        cam.setSlotComp2(aid, 1, 8.13)
+        console.log(cam.getSlotComp2(aid, 1))
         cam.setSlotComp4(aid, 0, { value: BigInt(-99), precision: 3, scale: 2 })
         cam.setSlotDisplay(aid, 1, "john")
         console.log("slot_1: " + cam.getSlotDisplay(aid, 1))

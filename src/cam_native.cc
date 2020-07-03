@@ -356,6 +356,34 @@ private:
                 return ret;
         }
 
+        static napi_value SetSlotComp2(napi_env env, napi_callback_info info)
+        {
+                napi_status status;
+
+                size_t argc = 3;
+                napi_value jsthis, argv[3];
+                status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
+                assert(status == napi_ok && argc == 3);
+
+                Cam *obj;
+                status = napi_unwrap(env, jsthis, (void**)&obj);
+                assert(status == napi_ok);
+
+                cam_aid_t aid;
+                status = napi_get_value_uint32(env, argv[0], &aid);
+                assert(status == napi_ok);
+
+                int32_t slot;
+                status = napi_get_value_int32(env, argv[1], &slot);
+                assert(status == napi_ok);
+
+                double value;
+                status = napi_get_value_double(env, argv[2], &value);
+                cam_set_slot_comp_2(obj->_cam, aid, slot, value);
+
+                return nullptr;
+        }
+
         static napi_value SetSlotComp4(napi_env env, napi_callback_info info)
         {
                 napi_status status;
@@ -473,6 +501,34 @@ private:
                 assert(status == napi_ok && display_len == copied_len);
 
                 return nullptr;
+        }
+
+        static napi_value GetSlotComp2(napi_env env, napi_callback_info info)
+        {
+                napi_status status;
+
+                size_t argc = 2;
+                napi_value jsthis, argv[2];
+                status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
+                assert(status == napi_ok && argc == 2);
+
+                Cam *obj;
+                status = napi_unwrap(env, jsthis, (void**)&obj);
+                assert(status == napi_ok);
+
+                cam_aid_t aid;
+                status = napi_get_value_uint32(env, argv[0], &aid);
+                assert(status == napi_ok);
+
+                int32_t slot;
+                status = napi_get_value_int32(env, argv[1], &slot);
+                assert(status == napi_ok);
+
+                napi_value ret;
+                double value = cam_get_slot_comp_2(obj->_cam, aid, slot);
+                status = napi_create_double(env, value, &ret);
+                assert(status == napi_ok);
+                return ret;
         }
 
         static napi_value GetSlotComp4(napi_env env, napi_callback_info info)
@@ -616,9 +672,11 @@ public:
                         DECLARE_NAPI_METHOD("ensureSlots",    &EnsureSlots),
                         DECLARE_NAPI_METHOD("numSlots",       &NumSlots),
                         DECLARE_NAPI_METHOD("slotType",       &SlotType),
+                        DECLARE_NAPI_METHOD("setSlotComp2",   &SetSlotComp2),
                         DECLARE_NAPI_METHOD("setSlotComp4",   &SetSlotComp4),
                         DECLARE_NAPI_METHOD("setSlotProgram", &SetSlotProgram),
                         DECLARE_NAPI_METHOD("setSlotDisplay", &SetSlotDisplay),
+                        DECLARE_NAPI_METHOD("getSlotComp2",   &GetSlotComp2),
                         DECLARE_NAPI_METHOD("getSlotComp4",   &GetSlotComp4),
                         DECLARE_NAPI_METHOD("getSlotDisplay", &GetSlotDisplay),
                         DECLARE_NAPI_METHOD("call",           &Call),

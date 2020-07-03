@@ -10,6 +10,8 @@ cam.addForeign("B-OPS", "SUB", aid => {
         cam.setSlotComp4(aid, 0, { value: BigInt(-99), precision: 3, scale: 2 })
         cam.setSlotDisplay(aid, 1, "john")
         console.log("slot_1: " + cam.getSlotDisplay(aid, 1))
+        console.log("slot_1_type: " + cam.slotType(aid, 0))
+        console.log("slot_2_type: " + cam.slotType(aid, 1))
 })
 
 cam.addChunkBuffer(chunk_buf)

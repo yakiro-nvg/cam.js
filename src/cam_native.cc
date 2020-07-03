@@ -544,7 +544,7 @@ public:
                         env, "CamNative", NAPI_AUTO_LENGTH, &New, nullptr, num_props, props, &cons);
                 assert(status == napi_ok);
 
-                status = napi_set_named_property(env, exports, "Cam", cons);
+                status = napi_set_named_property(env, exports, "CamNative", cons);
                 assert(status == napi_ok);
 
                 return exports;

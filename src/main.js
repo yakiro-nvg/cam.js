@@ -1,6 +1,6 @@
 var fs = require('fs')
 var native = require('bindings')('cam-native')
-var cam = new native.Cam()
+var cam = new native.CamNative()
 
 var chunk_buf = fs.readFileSync("C:/Users/Admin/Documents/GitHub/cam/build/tools/brutus/Debug/test.cam")
 

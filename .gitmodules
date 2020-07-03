@@ -1,0 +1,3 @@
+[submodule "vendor/cam"]
+	path = vendor/cam
+	url = https://github.com/yakiro-nvg/cam.git

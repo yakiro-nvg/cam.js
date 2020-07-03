@@ -1,0 +1,15 @@
+{
+        "name": "cam-js",
+        "version": "0.1.0",
+        "description": "COBOL Abstract Machine node.js wrapper",
+        "main": "src/main.js",
+        "scripts": {
+                "build": "node-gyp build",
+                "install": "node-gyp rebuild"
+        },
+        "dependencies": {
+                "bindings": "^1.5.0",
+                "nan": "^2.14.1"
+        },
+        "gypfile": true
+}

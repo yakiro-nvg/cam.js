@@ -626,7 +626,7 @@ private:
                 assert(status == napi_ok);
 
                 int32_t num_returnings;
-                status = napi_get_value_int32(env, argv[1], &num_returnings);
+                status = napi_get_value_int32(env, argv[2], &num_returnings);
                 assert(status == napi_ok);
 
                 cam_call(obj->_cam, aid, num_usings, num_returnings);

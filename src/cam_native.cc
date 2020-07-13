@@ -72,7 +72,7 @@ struct ForeignProgram
         cam_foreign_program_t cfp;
 };
 
-static void call_foreign_program(struct cam_s *, void *ud)
+static void call_foreign_program(struct cam_s *, int pattern, int num_usings, void *ud)
 {
         napi_status status;
         auto fp = (ForeignProgram*)ud;
@@ -81,7 +81,16 @@ static void call_foreign_program(struct cam_s *, void *ud)
         status = napi_get_reference_value(fp->env, fp->ref, &f);
         assert(status == napi_ok);
 
-        status = napi_call_function(fp->env, fp->recv, f, 0, nullptr, nullptr);
+        const size_t argc = 2;
+        napi_value argv[2];
+
+        status = napi_create_int32(fp->env, pattern, argv + 0);
+        assert(status == napi_ok);
+
+        status = napi_create_int32(fp->env, num_usings, argv + 1);
+        assert(status == napi_ok);
+
+        status = napi_call_function(fp->env, fp->recv, f, argc, argv, nullptr);
         assert(status == napi_ok);
 }
 

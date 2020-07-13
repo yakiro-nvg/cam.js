@@ -2,9 +2,8 @@ var fs = require('fs')
 var native = require('bindings')('cam-native')
 var cam = new native.CamNative()
 
-var chunk_buf = fs.readFileSync("C:/Users/Admin/Documents/GitHub/cam/build/tools/brutus/Debug/test.cam")
-
-cam.addForeign("B-OPS", "SUB", () => {
+cam.addForeign("B-OPS", "SUB", (pattern, num_usings) => {
+        console.log("pattern: " + pattern + ", num_usings: " + num_usings)
         console.log(cam.getSlotComp4(0))
         console.log(cam.getSlotComp4(1))
         cam.setSlotComp2(1, 8.13)
@@ -16,9 +15,10 @@ cam.addForeign("B-OPS", "SUB", () => {
         console.log("slot_2_type: " + cam.slotType(1))
 })
 
-cam.addChunkBuffer(chunk_buf)
 cam.link()
 
-cam.ensureSlots(1)
-cam.setSlotProgram(0, "TEST", "F")
-cam.protectedCall(0, 0)
+cam.ensureSlots(3)
+cam.setSlotProgram(0, "B-OPS", "SUB")
+cam.setSlotComp4(1, { value: BigInt(314), precision: 3, scale: 2 })
+cam.setSlotComp4(2, { value: BigInt(218), precision: 3, scale: 2 })
+cam.protectedCall(2, 0)

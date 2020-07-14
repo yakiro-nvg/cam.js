@@ -2,14 +2,30 @@
         "name": "cam-js",
         "version": "0.1.0",
         "description": "COBOL Abstract Machine node.js wrapper",
-        "main": "src/main.js",
+        "main": "lib/index.js",
         "scripts": {
-                "build": "node-gyp build",
-                "install": "node-gyp rebuild"
+                "build": "node-gyp build && tsc",
+                "install": "node-gyp rebuild && tsc",
+                "lint": "eslint . --ext .ts --config .eslintrc"
         },
+        "files": [
+                "/lib"
+        ],
         "dependencies": {
                 "bindings": "^1.5.0",
-                "nan": "^2.14.1"
+                "nan": "^2.14.1",
+                "tslib": "^1.13.0",
+                "uuid": "^8.2.0"
         },
+        "devDependencies": {
+                "@types/node": "^10.17.27",
+                "@types/uuid": "^8.0.0",
+                "@typescript-eslint/eslint-plugin": "^3.6.1",
+                "@typescript-eslint/parser": "^3.6.1",
+                "eslint": "^5.16.0",
+                "ts-node": "^8.10.2",
+                "typescript": "^3.9.6"
+        },
+        "types": "lib/index.d.ts",
         "gypfile": true
 }

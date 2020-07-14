@@ -12,8 +12,6 @@ using namespace std;
 
 #define DECLARE_NAPI_METHOD(name, func) { name, 0, func, 0, 0, 0, napi_default, 0 }
 
-#define MAX_NAME_LENGTH 256
-
 namespace cam { namespace native {
 
 struct chunk_allocator
@@ -67,12 +65,12 @@ struct ForeignProgram
         napi_env env;
         napi_ref ref;
         napi_value recv;
-        char module [MAX_NAME_LENGTH];
-        char program[MAX_NAME_LENGTH];
+        shared_ptr<char> module;
+        shared_ptr<char> program;
         cam_foreign_program_t cfp;
 };
 
-static void call_foreign_program(struct cam_s *, int pattern, int num_usings, void *ud)
+static void call_foreign_program(struct cam_s *, int num_usings, void *ud)
 {
         napi_status status;
         auto fp = (ForeignProgram*)ud;
@@ -81,16 +79,11 @@ static void call_foreign_program(struct cam_s *, int pattern, int num_usings, vo
         status = napi_get_reference_value(fp->env, fp->ref, &f);
         assert(status == napi_ok);
 
-        const size_t argc = 2;
-        napi_value argv[2];
-
-        status = napi_create_int32(fp->env, pattern, argv + 0);
+        napi_value argv[1];
+        status = napi_create_int32(fp->env, num_usings, argv);
         assert(status == napi_ok);
 
-        status = napi_create_int32(fp->env, num_usings, argv + 1);
-        assert(status == napi_ok);
-
-        status = napi_call_function(fp->env, fp->recv, f, argc, argv, nullptr);
+        status = napi_call_function(fp->env, fp->recv, f, 1, argv, nullptr);
         assert(status == napi_ok);
 }
 
@@ -179,20 +172,22 @@ private:
 
                 fp->recv = jsthis;
 
-                size_t name_sz;
+                size_t str_len, copied_len;
 
-                status = napi_get_value_string_latin1(env, argv[0], nullptr, 0, &name_sz);
-                assert(status == napi_ok && name_sz < MAX_NAME_LENGTH);
-                status = napi_get_value_string_latin1(env, argv[0], fp->module,  MAX_NAME_LENGTH, &name_sz);
+                status = napi_get_value_string_latin1(env, argv[0], nullptr, 0, &str_len);
                 assert(status == napi_ok);
+                fp->module.reset(new char[str_len + 1]);
+                status = napi_get_value_string_latin1(env, argv[0], fp->module.get(), str_len + 1, &copied_len);
+                assert(status == napi_ok && str_len == copied_len);
 
-                status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &name_sz);
-                assert(status == napi_ok && name_sz < MAX_NAME_LENGTH);
-                status = napi_get_value_string_latin1(env, argv[1], fp->program, MAX_NAME_LENGTH, &name_sz);
+                status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &str_len);
                 assert(status == napi_ok);
+                fp->program.reset(new char[str_len + 1]);
+                status = napi_get_value_string_latin1(env, argv[1], fp->program.get(), str_len + 1, &copied_len);
+                assert(status == napi_ok && str_len == copied_len);
 
-                fp->cfp.module  = fp->module;
-                fp->cfp.program = fp->program;
+                fp->cfp.module  = fp->module.get();
+                fp->cfp.program = fp->program.get();
                 fp->cfp.func    = &call_foreign_program;
                 fp->cfp.ud      = fp.get();
 
@@ -237,8 +232,8 @@ private:
                 status = napi_unwrap(env, jsthis, (void**)&obj);
                 assert(status == napi_ok);
 
-                uint32_t num_slots;
-                status = napi_get_value_uint32(env, argv[0], &num_slots);
+                int32_t num_slots;
+                status = napi_get_value_int32(env, argv[0], &num_slots);
                 cam_ensure_slots(obj->_cam, num_slots);
 
                 return nullptr;
@@ -367,22 +362,22 @@ private:
                 status = napi_get_value_int32(env, argv[0], &slot);
                 assert(status == napi_ok);
 
-                size_t name_sz;
-                char module [MAX_NAME_LENGTH];
-                char program[MAX_NAME_LENGTH];
+                size_t str_len, copied_len;
 
-                status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &name_sz);
-                assert(status == napi_ok && name_sz < MAX_NAME_LENGTH);
-                status = napi_get_value_string_latin1(env, argv[1], module,  MAX_NAME_LENGTH, &name_sz);
+                status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &str_len);
                 assert(status == napi_ok);
+                shared_ptr<char> module(new char[str_len + 1]);
+                status = napi_get_value_string_latin1(env, argv[1], module.get(), str_len + 1, &copied_len);
+                assert(status == napi_ok && str_len == copied_len);
 
-                status = napi_get_value_string_latin1(env, argv[2], nullptr, 0, &name_sz);
-                assert(status == napi_ok && name_sz < MAX_NAME_LENGTH);
-                status = napi_get_value_string_latin1(env, argv[2], program, MAX_NAME_LENGTH, &name_sz);
+                status = napi_get_value_string_latin1(env, argv[2], nullptr, 0, &str_len);
                 assert(status == napi_ok);
+                shared_ptr<char> program(new char[str_len + 1]);
+                status = napi_get_value_string_latin1(env, argv[2], program.get(), str_len + 1, &copied_len);
+                assert(status == napi_ok && str_len == copied_len);
 
                 napi_value ret;
-                cam_error_t ec = cam_set_slot_program(obj->_cam, slot, module, program);
+                cam_error_t ec = cam_set_slot_program(obj->_cam, slot, module.get(), program.get());
                 status = napi_create_int32(env, ec, &ret);
                 return ret;
         }
@@ -394,7 +389,7 @@ private:
                 size_t argc = 2;
                 napi_value jsthis, argv[2];
                 status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
-                assert(status == napi_ok && argc == 2);
+                assert(status == napi_ok && argc == 1);
 
                 Cam *obj;
                 status = napi_unwrap(env, jsthis, (void**)&obj);
@@ -404,12 +399,16 @@ private:
                 status = napi_get_value_int32(env, argv[0], &slot);
                 assert(status == napi_ok);
 
-                size_t display_len, copied_len;
-                status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &display_len);
-                assert(status == napi_ok);
-                char *str = cam_set_slot_display(obj->_cam, slot, nullptr, display_len);
-                status = napi_get_value_string_latin1(env, argv[1], str, display_len + 1, &copied_len);
-                assert(status == napi_ok && display_len == copied_len);
+                if (argc == 2) {
+                        size_t display_len, copied_len;
+                        status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &display_len);
+                        assert(status == napi_ok);
+                        char *str = cam_set_slot_display(obj->_cam, slot, nullptr, display_len);
+                        status = napi_get_value_string_latin1(env, argv[1], str, display_len + 1, &copied_len);
+                        assert(status == napi_ok && display_len == copied_len);
+                } else {
+                        cam_set_slot_display(obj->_cam, slot, "", 1);
+                }
 
                 return nullptr;
         }
@@ -458,25 +457,25 @@ private:
                 int precision, scale;
                 cam_comp_4_t value = cam_get_slot_comp_4(obj->_cam, slot, &precision, &scale);
 
-                napi_value ret;
-                status = napi_create_object(env, &ret);
-                assert(status == napi_ok);
-
                 napi_value c4v;
-
-                status = napi_create_bigint_int64(env, value, &c4v);
+                status = napi_create_object(env, &c4v);
                 assert(status == napi_ok);
-                status = napi_set_named_property(env, ret, "value", c4v);
 
-                status = napi_create_int32(env, precision, &c4v);
+                napi_value v;
+
+                status = napi_create_bigint_int64(env, value, &v);
                 assert(status == napi_ok);
-                status = napi_set_named_property(env, ret, "precision", c4v);
+                status = napi_set_named_property(env, c4v, "value", v);
 
-                status = napi_create_int32(env, scale, &c4v);
+                status = napi_create_int32(env, precision, &v);
                 assert(status == napi_ok);
-                status = napi_set_named_property(env, ret, "scale", c4v);
+                status = napi_set_named_property(env, c4v, "precision", v);
 
-                return ret;
+                status = napi_create_int32(env, scale, &v);
+                assert(status == napi_ok);
+                status = napi_set_named_property(env, c4v, "scale", v);
+
+                return c4v;
         }
 
         static napi_value GetSlotDisplay(napi_env env, napi_callback_info info)
@@ -562,7 +561,7 @@ private:
         chunk_allocator _chunk_allocator;
 
 public:
-        static napi_value Init(napi_env env, napi_value exports)
+        static void Init(napi_env env, napi_value exports)
         {
                 napi_status status;
 
@@ -593,8 +592,6 @@ public:
 
                 status = napi_set_named_property(env, exports, "CamNative", cons);
                 assert(status == napi_ok);
-
-                return exports;
         }
 
         static void Destructor(napi_env env, void *obj, void *)
@@ -603,11 +600,9 @@ public:
         }
 };
 
-napi_value Init(napi_env env, napi_value exports)
+void CamInit(napi_env env, napi_value exports)
 {
-        return Cam::Init(env, exports);
+        Cam::Init(env, exports);
 }
-
-NAPI_MODULE(cam_native, Init)
 
 } } // namespace cam::native

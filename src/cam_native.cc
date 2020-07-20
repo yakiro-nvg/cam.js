@@ -174,16 +174,16 @@ private:
 
                 size_t str_len, copied_len;
 
-                status = napi_get_value_string_latin1(env, argv[0], nullptr, 0, &str_len);
+                status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &str_len);
                 assert(status == napi_ok);
                 fp->module.reset(new char[str_len + 1]);
-                status = napi_get_value_string_latin1(env, argv[0], fp->module.get(), str_len + 1, &copied_len);
+                status = napi_get_value_string_utf8(env, argv[0], fp->module.get(), str_len + 1, &copied_len);
                 assert(status == napi_ok && str_len == copied_len);
 
-                status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &str_len);
+                status = napi_get_value_string_utf8(env, argv[1], nullptr, 0, &str_len);
                 assert(status == napi_ok);
                 fp->program.reset(new char[str_len + 1]);
-                status = napi_get_value_string_latin1(env, argv[1], fp->program.get(), str_len + 1, &copied_len);
+                status = napi_get_value_string_utf8(env, argv[1], fp->program.get(), str_len + 1, &copied_len);
                 assert(status == napi_ok && str_len == copied_len);
 
                 fp->cfp.module  = fp->module.get();
@@ -364,16 +364,16 @@ private:
 
                 size_t str_len, copied_len;
 
-                status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &str_len);
+                status = napi_get_value_string_utf8(env, argv[1], nullptr, 0, &str_len);
                 assert(status == napi_ok);
                 shared_ptr<char> module(new char[str_len + 1]);
-                status = napi_get_value_string_latin1(env, argv[1], module.get(), str_len + 1, &copied_len);
+                status = napi_get_value_string_utf8(env, argv[1], module.get(), str_len + 1, &copied_len);
                 assert(status == napi_ok && str_len == copied_len);
 
-                status = napi_get_value_string_latin1(env, argv[2], nullptr, 0, &str_len);
+                status = napi_get_value_string_utf8(env, argv[2], nullptr, 0, &str_len);
                 assert(status == napi_ok);
                 shared_ptr<char> program(new char[str_len + 1]);
-                status = napi_get_value_string_latin1(env, argv[2], program.get(), str_len + 1, &copied_len);
+                status = napi_get_value_string_utf8(env, argv[2], program.get(), str_len + 1, &copied_len);
                 assert(status == napi_ok && str_len == copied_len);
 
                 napi_value ret;
@@ -401,10 +401,10 @@ private:
 
                 if (argc == 2) {
                         size_t display_len, copied_len;
-                        status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &display_len);
+                        status = napi_get_value_string_utf8(env, argv[1], nullptr, 0, &display_len);
                         assert(status == napi_ok);
                         char *str = cam_set_slot_display(obj->_cam, slot, nullptr, display_len);
-                        status = napi_get_value_string_latin1(env, argv[1], str, display_len + 1, &copied_len);
+                        status = napi_get_value_string_utf8(env, argv[1], str, display_len + 1, &copied_len);
                         assert(status == napi_ok && display_len == copied_len);
                 } else {
                         cam_set_slot_display(obj->_cam, slot, "", 1);
@@ -498,7 +498,7 @@ private:
                 int length;
                 napi_value ret;
                 const char *str = cam_get_slot_display(obj->_cam, slot, &length);
-                status = napi_create_string_latin1(env, str, length, &ret);
+                status = napi_create_string_utf8(env, str, length, &ret);
                 return ret;
         }
 

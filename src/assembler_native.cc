@@ -56,10 +56,10 @@ private:
                 assert(status == napi_ok && argc == 2);
 
                 size_t str_len, copied_len;
-                status = napi_get_value_string_latin1(env, argv[0], nullptr, 0, &str_len);
+                status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &str_len);
                 assert(status == napi_ok);
                 shared_ptr<char> module(new char[str_len + 1]);
-                status = napi_get_value_string_latin1(env, argv[0], module.get(), str_len + 1, &copied_len);
+                status = napi_get_value_string_utf8(env, argv[0], module.get(), str_len + 1, &copied_len);
                 assert(status == napi_ok && str_len == copied_len);
 
                 uint8_t *uuid;
@@ -94,10 +94,10 @@ private:
                 assert(status == napi_ok);
 
                 size_t str_len, copied_len;
-                status = napi_get_value_string_latin1(env, argv[0], nullptr, 0, &str_len);
+                status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &str_len);
                 assert(status == napi_ok);
                 shared_ptr<char> path(new char[str_len + 1]);
-                status = napi_get_value_string_latin1(env, argv[0], path.get(), str_len + 1, &copied_len);
+                status = napi_get_value_string_utf8(env, argv[0], path.get(), str_len + 1, &copied_len);
                 assert(status == napi_ok && str_len == copied_len);
 
                 ofstream os;
@@ -156,10 +156,10 @@ private:
 
                 if (argc == 3) {
                         size_t str_len, copied_len;
-                        status = napi_get_value_string_latin1(env, argv[2], nullptr, 0, &str_len);
+                        status = napi_get_value_string_utf8(env, argv[2], nullptr, 0, &str_len);
                         assert(status == napi_ok);
                         shared_ptr<char> value(new char[str_len + 1]);
-                        status = napi_get_value_string_latin1(env, argv[2], value.get(), str_len + 1, &copied_len);
+                        status = napi_get_value_string_utf8(env, argv[2], value.get(), str_len + 1, &copied_len);
                         assert(status == napi_ok && str_len == copied_len);
                         idx = cam_asm_wfield_comp_4(obj->_as, precision, scale, value.get());
                 } else {
@@ -189,10 +189,10 @@ private:
 
                 if (argc == 1) {
                         size_t str_len, copied_len;
-                        status = napi_get_value_string_latin1(env, argv[0], nullptr, 0, &str_len);
+                        status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &str_len);
                         assert(status == napi_ok);
                         shared_ptr<char> value(new char[str_len + 1]);
-                        status = napi_get_value_string_latin1(env, argv[0], value.get(), str_len + 1, &copied_len);
+                        status = napi_get_value_string_utf8(env, argv[0], value.get(), str_len + 1, &copied_len);
                         assert(status == napi_ok && str_len == copied_len);
                         idx = cam_asm_wfield_display(obj->_as, value.get());
                 } else {
@@ -220,16 +220,16 @@ private:
 
                 size_t str_len, copied_len;
 
-                status = napi_get_value_string_latin1(env, argv[0], nullptr, 0, &str_len);
+                status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &str_len);
                 assert(status == napi_ok);
                 shared_ptr<char> module(new char[str_len + 1]);
-                status = napi_get_value_string_latin1(env, argv[0], module.get(), str_len + 1, &copied_len);
+                status = napi_get_value_string_utf8(env, argv[0], module.get(), str_len + 1, &copied_len);
                 assert(status == napi_ok && str_len == copied_len);
 
-                status = napi_get_value_string_latin1(env, argv[1], nullptr, 0, &str_len);
+                status = napi_get_value_string_utf8(env, argv[1], nullptr, 0, &str_len);
                 assert(status == napi_ok);
                 shared_ptr<char> program(new char[str_len + 1]);
-                status = napi_get_value_string_latin1(env, argv[1], program.get(), str_len + 1, &copied_len);
+                status = napi_get_value_string_utf8(env, argv[1], program.get(), str_len + 1, &copied_len);
                 assert(status == napi_ok && str_len == copied_len);
 
                 const int idx = cam_asm_import(obj->_as, module.get(), program.get());
@@ -344,10 +344,10 @@ private:
 
                 if (argc == 1) {
                         size_t str_len, copied_len;
-                        status = napi_get_value_string_latin1(env, argv[0], nullptr, 0, &str_len);
+                        status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &str_len);
                         assert(status == napi_ok);
                         shared_ptr<char> name(new char[str_len + 1]);
-                        status = napi_get_value_string_latin1(env, argv[0], name.get(), str_len + 1, &copied_len);
+                        status = napi_get_value_string_utf8(env, argv[0], name.get(), str_len + 1, &copied_len);
                         assert(status == napi_ok && str_len == copied_len);
                         idx = cam_asm_prototype_push(obj->_as, name.get());
                 } else {

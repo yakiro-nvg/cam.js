@@ -11,6 +11,7 @@ export enum Opcode
         Load,
         Store,
         Import,
+        ModuleValue,
         Jump,
         JumpIfNot,
         Call,

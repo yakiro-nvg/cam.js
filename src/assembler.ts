@@ -8,6 +8,7 @@ export enum Opcode
         Push,
         NumUsings,
         Replace,
+        RelativeReplace,
         Load,
         Store,
         Import,

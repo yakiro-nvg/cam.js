@@ -14,6 +14,14 @@ using namespace std;
 
 namespace cam { namespace native {
 
+static bool is_undefined(napi_env env, napi_value v)
+{
+        napi_valuetype t;
+        napi_status status = napi_typeof(env, v, &t);
+        assert(status == napi_ok);
+        return t == napi_undefined;
+}
+
 struct chunk_allocator
 {
         // `aif` must be at the head
@@ -399,7 +407,7 @@ private:
                 status = napi_get_value_int32(env, argv[0], &slot);
                 assert(status == napi_ok);
 
-                if (argc == 2) {
+                if (argc == 2 && !is_undefined(env, argv[1])) {
                         size_t display_len, copied_len;
                         status = napi_get_value_string_utf8(env, argv[1], nullptr, 0, &display_len);
                         assert(status == napi_ok);

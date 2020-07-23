@@ -12,13 +12,21 @@ using namespace std;
 
 #define DECLARE_NAPI_METHOD(name, func) { name, 0, func, 0, 0, 0, napi_default, 0 }
 
+namespace cam { namespace native {
+
 static void write_to_file(void *ud, void *buf, int bytes)
 {
         auto os = (ofstream*)ud;
         os->write((const char*)buf, bytes);
 }
 
-namespace cam { namespace native {
+static bool is_undefined(napi_env env, napi_value v)
+{
+        napi_valuetype t;
+        napi_status status = napi_typeof(env, v, &t);
+        assert(status == napi_ok);
+        return t == napi_undefined;
+}
 
 class Assembler
 {
@@ -154,7 +162,7 @@ private:
 
                 int idx;
 
-                if (argc == 3) {
+                if (argc == 3 && !is_undefined(env, argv[2])) {
                         size_t str_len, copied_len;
                         status = napi_get_value_string_utf8(env, argv[2], nullptr, 0, &str_len);
                         assert(status == napi_ok);
@@ -187,7 +195,7 @@ private:
 
                 int idx;
 
-                if (argc == 1) {
+                if (argc == 1 && !is_undefined(env, argv[0])) {
                         size_t str_len, copied_len;
                         status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &str_len);
                         assert(status == napi_ok);
@@ -341,8 +349,7 @@ private:
                 assert(status == napi_ok);
 
                 int idx;
-
-                if (argc == 1) {
+                if (argc == 1 && !is_undefined(env, argv[0])) {
                         size_t str_len, copied_len;
                         status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &str_len);
                         assert(status == napi_ok);

@@ -329,17 +329,10 @@ private:
 
                 napi_value c4v;
 
-                bool lossless;
-                cam_comp_4_t value;
-                status = napi_get_named_property(env, argv[1], "value", &c4v);
+                bool is_signed;
+                status = napi_get_named_property(env, argv[1], "isSigned", &c4v);
                 assert(status == napi_ok);
-                status = napi_get_value_bigint_int64(env, c4v, &value, &lossless);
-                assert(status == napi_ok && lossless);
-
-                int precision;
-                status = napi_get_named_property(env, argv[1], "precision", &c4v);
-                assert(status == napi_ok);
-                status = napi_get_value_int32(env, c4v, &precision);
+                status = napi_get_value_bool(env, c4v, &is_signed);
                 assert(status == napi_ok);
 
                 int scale;
@@ -348,7 +341,14 @@ private:
                 status = napi_get_value_int32(env, c4v, &scale);
                 assert(status == napi_ok);
 
-                cam_set_slot_comp_4(obj->_cam, slot, value, precision, scale);
+                bool lossless;
+                cam_comp_4_t value;
+                status = napi_get_named_property(env, argv[1], "value", &c4v);
+                assert(status == napi_ok);
+                status = napi_get_value_bigint_int64(env, c4v, &value, &lossless);
+                assert(status == napi_ok && lossless);
+
+                cam_set_slot_comp_4(obj->_cam, slot, is_signed, scale, value);
 
                 return nullptr;
         }
@@ -462,8 +462,9 @@ private:
                 status = napi_get_value_int32(env, argv[0], &slot);
                 assert(status == napi_ok);
 
-                int precision, scale;
-                cam_comp_4_t value = cam_get_slot_comp_4(obj->_cam, slot, &precision, &scale);
+                bool is_signed;
+                int scale;
+                cam_comp_4_t value = cam_get_slot_comp_4(obj->_cam, slot, &is_signed, &scale);
 
                 napi_value c4v;
                 status = napi_create_object(env, &c4v);
@@ -471,17 +472,17 @@ private:
 
                 napi_value v;
 
-                status = napi_create_bigint_int64(env, value, &v);
+                status = napi_get_boolean(env, is_signed, &v);
                 assert(status == napi_ok);
-                status = napi_set_named_property(env, c4v, "value", v);
-
-                status = napi_create_int32(env, precision, &v);
-                assert(status == napi_ok);
-                status = napi_set_named_property(env, c4v, "precision", v);
+                status = napi_set_named_property(env, c4v, "isSigned", v);
 
                 status = napi_create_int32(env, scale, &v);
                 assert(status == napi_ok);
                 status = napi_set_named_property(env, c4v, "scale", v);
+
+                status = napi_create_bigint_int64(env, value, &v);
+                assert(status == napi_ok);
+                status = napi_set_named_property(env, c4v, "value", v);
 
                 return c4v;
         }

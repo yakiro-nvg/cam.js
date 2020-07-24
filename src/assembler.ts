@@ -1,5 +1,6 @@
 const native = require('bindings')('cam-native')
 import { v4 as uuidv4 } from 'uuid'
+import { Comp4 } from './cam'
 
 export enum Opcode
 {
@@ -25,7 +26,7 @@ export interface AssemblerNative
 {
         serialize(path: string): void
         wfieldComp2(value: number): number
-        wfieldComp4(precision: number, scale: number, value?: string): number
+        wfieldComp4(comp4: Comp4): number
         wfieldDisplay(value?: string): number
         import(module: string, program: string): number
         emitA(opcode: Opcode): number

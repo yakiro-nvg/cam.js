@@ -18,15 +18,15 @@ export enum SlotType
 
 export class Comp4
 {
-        value: BigInt
-        precision: number
         scale: number
+        isSigned: boolean
+        value: BigInt
 
-        constructor(value: BigInt, precision: number, scale: number)
+        constructor(isSigned: boolean, scale: number, value: BigInt)
         {
-                this.value     = value
-                this.precision = precision
-                this.scale     = scale
+                this.isSigned = isSigned
+                this.value    = value
+                this.scale    = scale
         }
 }
 

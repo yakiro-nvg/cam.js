@@ -143,36 +143,37 @@ private:
         {
                 napi_status status;
 
-                size_t argc = 3;
-                napi_value jsthis, argv[3];
+                size_t argc = 1;
+                napi_value jsthis, argv[1];
                 status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
-                assert(status == napi_ok && argc >= 2);
+                assert(status == napi_ok && argc == 1);
 
                 Assembler *obj;
                 status = napi_unwrap(env, jsthis, (void**)&obj);
                 assert(status == napi_ok);
 
-                int32_t precision;
-                status = napi_get_value_int32(env, argv[0], &precision);
+                napi_value c4v;
+
+                bool is_signed;
+                status = napi_get_named_property(env, argv[1], "isSigned", &c4v);
+                assert(status == napi_ok);
+                status = napi_get_value_bool(env, c4v, &is_signed);
                 assert(status == napi_ok);
 
-                int32_t scale;
-                status = napi_get_value_int32(env, argv[1], &scale);
+                int scale;
+                status = napi_get_named_property(env, argv[1], "scale", &c4v);
+                assert(status == napi_ok);
+                status = napi_get_value_int32(env, c4v, &scale);
                 assert(status == napi_ok);
 
-                int idx;
+                bool lossless;
+                cam_comp_4_t value;
+                status = napi_get_named_property(env, argv[1], "value", &c4v);
+                assert(status == napi_ok);
+                status = napi_get_value_bigint_int64(env, c4v, &value, &lossless);
+                assert(status == napi_ok && lossless);
 
-                if (argc == 3 && !is_undefined(env, argv[2])) {
-                        size_t str_len, copied_len;
-                        status = napi_get_value_string_utf8(env, argv[2], nullptr, 0, &str_len);
-                        assert(status == napi_ok);
-                        shared_ptr<char> value(new char[str_len + 1]);
-                        status = napi_get_value_string_utf8(env, argv[2], value.get(), str_len + 1, &copied_len);
-                        assert(status == napi_ok && str_len == copied_len);
-                        idx = cam_asm_wfield_comp_4(obj->_as, precision, scale, value.get());
-                } else {
-                        idx = cam_asm_wfield_comp_4(obj->_as, precision, scale, nullptr);
-                }
+                const int idx = cam_asm_wfield_comp_4(obj->_as, is_signed, scale, value);
 
                 napi_value ret;
                 status = napi_create_int32(env, idx, &ret);

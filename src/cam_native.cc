@@ -397,7 +397,7 @@ private:
                 size_t argc = 2;
                 napi_value jsthis, argv[2];
                 status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
-                assert(status == napi_ok && argc == 1);
+                assert(status == napi_ok && argc >= 1);
 
                 Cam *obj;
                 status = napi_unwrap(env, jsthis, (void**)&obj);
@@ -511,6 +511,32 @@ private:
                 return ret;
         }
 
+        static napi_value SlotCopy(napi_env env, napi_callback_info info)
+        {
+                napi_status status;
+
+                size_t argc = 2;
+                napi_value jsthis, argv[2];
+                status = napi_get_cb_info(env, info, &argc, argv, &jsthis, nullptr);
+                assert(status == napi_ok && argc == 2);
+
+                Cam *obj;
+                status = napi_unwrap(env, jsthis, (void**)&obj);
+                assert(status == napi_ok);
+
+                int32_t dst_slot;
+                status = napi_get_value_int32(env, argv[0], &dst_slot);
+                assert(status == napi_ok);
+
+                int32_t src_slot;
+                status = napi_get_value_int32(env, argv[1], &src_slot);
+                assert(status == napi_ok);
+
+                cam_slot_copy(obj->_cam, dst_slot, src_slot);
+
+                return nullptr;
+        }
+
         static napi_value Call(napi_env env, napi_callback_info info)
         {
                 napi_status status;
@@ -588,6 +614,7 @@ public:
                         DECLARE_NAPI_METHOD("getSlotComp2",   &GetSlotComp2),
                         DECLARE_NAPI_METHOD("getSlotComp4",   &GetSlotComp4),
                         DECLARE_NAPI_METHOD("getSlotDisplay", &GetSlotDisplay),
+                        DECLARE_NAPI_METHOD("slotCopy",       &SlotCopy),
                         DECLARE_NAPI_METHOD("call",           &Call),
                         DECLARE_NAPI_METHOD("protectedCall",  &ProtectedCall)
                 };

@@ -45,6 +45,7 @@ export interface CamNative
         getSlotComp2(slot: number): number
         getSlotComp4(slot: number): Comp4
         getSlotDisplay(slot: number): string
+        slotCopy(dstSlot: number, srcSlot: number): void
         call(numUsings: number, numReturnings: number): void
         protectedCall(numUsings: number, numReturnings: number): void
 }

@@ -4,6 +4,7 @@
                         "target_name": "cam-native",
                         "sources": [
                                 "<!@(node -p \"require('fs').readdirSync('vendor/cam/src/').filter(f => f.endsWith('.c')).map(f => 'vendor/cam/src/' + f).join(' ')\")",
+                                "<!@(node -p \"require('fs').readdirSync('vendor/cam/src/lib/').filter(f => f.endsWith('.c')).map(f => 'vendor/cam/src/lib/' + f).join(' ')\")",
                                 "src/cam_native.cc",
                                 "src/assembler_native.cc",
                                 "src/init_modules.cc"

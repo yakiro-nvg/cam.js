@@ -155,20 +155,20 @@ private:
                 napi_value c4v;
 
                 bool is_signed;
-                status = napi_get_named_property(env, argv[1], "isSigned", &c4v);
+                status = napi_get_named_property(env, argv[0], "isSigned", &c4v);
                 assert(status == napi_ok);
                 status = napi_get_value_bool(env, c4v, &is_signed);
                 assert(status == napi_ok);
 
                 int scale;
-                status = napi_get_named_property(env, argv[1], "scale", &c4v);
+                status = napi_get_named_property(env, argv[0], "scale", &c4v);
                 assert(status == napi_ok);
                 status = napi_get_value_int32(env, c4v, &scale);
                 assert(status == napi_ok);
 
                 bool lossless;
                 cam_comp_4_t value;
-                status = napi_get_named_property(env, argv[1], "value", &c4v);
+                status = napi_get_named_property(env, argv[0], "value", &c4v);
                 assert(status == napi_ok);
                 status = napi_get_value_bigint_int64(env, c4v, &value, &lossless);
                 assert(status == napi_ok && lossless);

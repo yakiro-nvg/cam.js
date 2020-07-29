@@ -1,5 +1,5 @@
 const native = require('bindings')('cam-native')
-import { Error } from './error'
+import { ErrorCode } from './error'
 import { readFileSync } from 'fs'
 
 export interface Foreign
@@ -32,9 +32,9 @@ export class Comp4
 
 export interface CamNative
 {
-        addChunkBuffer(buf: Buffer): Error
+        addChunkBuffer(buf: Buffer): ErrorCode
         addForeign(module: string, program: string, foreign: Foreign): void
-        link(): Error
+        link(): ErrorCode
         ensureSlots(numSlots: number): void
         numSlots(): number
         slotType(slot: number): SlotType
@@ -59,9 +59,18 @@ export class Cam extends CamNative
         constructor()
         {
                 super()
+
+                this.addForeign('SYSTEM', 'CONSOLE-WRITE', _ => {
+                        process.stdout.write(this.getSlotDisplay(-1))
+                })
+
+                const ec = this.link()
+                if (ec !== ErrorCode.Success) {
+                        throw new Error('failed to link: code = ' + ec)
+                }
         }
 
-        addChunk(path: string): Error
+        addChunk(path: string): ErrorCode
         {
                 return this.addChunkBuffer(readFileSync(path))
         }

@@ -1,4 +1,4 @@
-export enum Error
+export enum ErrorCode
 {
         Success = 0,
         Unexpected,
